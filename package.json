@@ -12,5 +12,15 @@
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
-  }
+  },
+  "scripts": {
+    "server": "nodemon server.js",
+    "start": "node server.js"
+  },
+  "name": "notionlibrary",
+  "version": "1.0.0",
+  "description": "\"Library Management System Web app\"",
+  "main": "server.js",
+  "author": "josiah",
+  "license": "MIT"
 }
