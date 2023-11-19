@@ -16,12 +16,6 @@ class User extends Model {
 }
 
 User.init({
-    library_id: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        unique: true,
-        primaryKey: true
-    },
 
     email: {
         type: DataTypes.STRING,
@@ -54,7 +48,7 @@ User.init({
     },
 
     registrationDate: {
-        type: DataTypes.DATE    
+        type: DataTypes.BIGINT    
     },
 
     passwordResetToken: {

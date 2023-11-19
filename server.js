@@ -10,6 +10,13 @@ const PORT = process.env.PORT;
 // Express Server 
 const app = express();
 
+// Middleware
+app.use(express.json());
+
+app.use('/api/auth', require('./routes/auth'));
+
+
+
 const server = app.listen(PORT, async () => {
     console.log(`Listening at http://localhost:${PORT}`);
 });
