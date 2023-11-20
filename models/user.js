@@ -55,10 +55,6 @@ User.init({
         type: DataTypes.STRING
     },
 
-    resetPasswordTime: {
-        type: DataTypes.BIGINT  // unix timestamp of reset passwd request
-    },
-
     role: {
         type: DataTypes.ENUM("admin", "member"),
     }
