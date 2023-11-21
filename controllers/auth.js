@@ -120,10 +120,82 @@ const login = async (req, res, next) => {
         res.status(500).json({ success: false, msg: "Server error" });
     }
 
+};
+
+
+/**
+ * Sends request to send password request token
+ * */ 
+
+const forgot_password = async (req, res, next) => {
+    const { email } = req.body;
+
+    // Generate JWT token
+    const secret = process.env.JWT_SECRET;
+    const expiresIn = '30min';
+    const payload = {
+        email: email,
+        expiresIn: Math.floor(Date.now() / 1000) + expiresIn
+    }
+    const resetPasswordToken = jwt.sign(payload, secret, { expiresIn });
+
+    try {
+
+
+        const user = await User.findOne({ where: { email: email } });
+
+        if(user) {
+            user.passwordResetToken = resetPasswordToken;
+            await user.save();
+        }
+
+        // Send email
+        await send_email({ 
+            to: email,
+            subject: "Reset Password",
+            text: `
+                <h1>You requested to change your password </h1>
+                <p>Click on this link to change your password</p>
+                <a href='http://localhost:${process.env.PORT}/api/auth/resetpassword/${resetPasswordToken}'>Link</>
+            `
+        });
+
+        res.status(201).json({ success: true, msg: "Email sent" });
+
+    } catch (error) {
+        console.log(error);
+
+        res.status(500).json({ success: false, msg: "Server error" });
+    }
+};
+
+
+/**
+ * User a jwt token to identify an account to change the password column of
+ * 
+*/
+
+const reset_password = async(req, res, next) => {
+    const { resetToken } = req.params;
+    const { password } = req.body;
+
+    try {
+        console.log(resetToken)
+        const user = await User.findOne({ where: { passwordResetToken: resetToken }});
+
+        if(user) {
+            user.password = password;
+            user.resetPasswordToken = null;
+            await user.save();
+
+            return res.status(201).json({ success: true, msg: "Password Changed" });
+        }
+    } catch (error) {
+        console.log(error);
+
+        res.status(500).json({ success: false, msg: "Server Error" });
+    }
 }
-
-
-
 
 const sendMail = async (token, email, subject) => {
     const confirmationUrl = `http://localhost:${process.env.PORT}/${token}`;
@@ -145,4 +217,4 @@ const sendMail = async (token, email, subject) => {
     }
 };
 
-module.exports = { register, confirm_email, login };
+module.exports = { register, confirm_email, login, forgot_password, reset_password };

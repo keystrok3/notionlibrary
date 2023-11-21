@@ -76,6 +76,14 @@ User.init({
             const salt = await bcrypt.genSalt(10);
             const hashedPassword = await bcrypt.hash(User.password, salt);
             User.password = hashedPassword;
+        },
+
+        beforeSave: async (User) => {
+            if(User.changed('password')) {
+                const salt = await bcrypt.genSalt(10);
+                const hashedPassword = await bcrypt.hash(User.password, salt);
+                User.password = hashedPassword;
+            }
         }
     },
     sequelize,
