@@ -5,6 +5,7 @@
  *  resetPasswordToken, resetPasswordTime, role (admin, member)
 */
 
+const bcrypt = require('bcrypt');
 const { DataTypes, Model, Sequelize } = require('sequelize');
 const { sequelize } = require('../config/db');
 
@@ -12,6 +13,15 @@ class User extends Model {
 
     static associate(models) {
         // define association here
+    }
+
+    async comparePassword(login_password) {
+        try {
+            const isPassword = await bcrypt.compare(login_password, this.password);
+            return isPassword;
+        } catch (error) {
+            console.log(error);   
+        }
     }
 }
 
@@ -61,10 +71,20 @@ User.init({
 },
 
 {
+    hooks: {
+        beforeCreate: async (User) => {
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(User.password, salt);
+            User.password = hashedPassword;
+        }
+    },
     sequelize,
     tableName: 'users',
     modelName: 'User'
 });
+
+
+    
 
 // Create table
 User

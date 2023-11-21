@@ -46,6 +46,7 @@ const register = async (req, res, next) => {
         res.status(201).json({ success: true, user });
 
     } catch (error) {
+        console.log(error)
         res.status(500).json({ success: false, msg: error });
     }
 };
@@ -83,6 +84,45 @@ const confirm_email = async (req, res, next) => {
 };
 
 
+/**
+ * Login controller
+ * */ 
+const login = async (req, res, next) => {
+    const { email, password } = req.body;
+
+    if(!email || !password) {
+        return res.status(404).json({ success: false, msg: "Enter email or password"});
+    }
+
+    try {
+        const user = await User.findOne({ where: { email: email }});
+
+        if(!user) {
+            return res.status(404).json({ success: false, msg: "Enter correct credentials" });
+        }
+
+        // Check password
+        const correctPassword = await user.comparePassword(password)
+        console.log('\n\n\n\n pass? ',correctPassword)
+        if(correctPassword === false) {
+            console.log('Wrong password');
+            return res.status(401).json({ success: false, msg: "Wrong password" });
+        }
+
+        req.session.user = {
+            email: user.email,
+            confirmed: user.confirmationStatus,
+        }
+        let session_data = req.session;
+        res.status(200).json({ success: true,  session_data })
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ success: false, msg: "Server error" });
+    }
+
+}
+
+
 
 
 const sendMail = async (token, email, subject) => {
@@ -105,4 +145,4 @@ const sendMail = async (token, email, subject) => {
     }
 };
 
-module.exports = { register, confirm_email };
+module.exports = { register, confirm_email, login };

@@ -1,8 +1,8 @@
 require('dotenv').config({ path: './config.env'});
 
 const express = require('express');
-const { sequelize } = require('./config/db');
-const User = require('./models/user');
+const session = require('express-session');
+
 
 const PORT = process.env.PORT;
 
@@ -13,6 +13,17 @@ const app = express();
 // Middleware
 app.use(express.json());
 
+// Session middleware
+app.use(session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: false,
+    }
+}));
+
+// Routing middleware
 app.use('/api/auth', require('./routes/auth'));
 
 
