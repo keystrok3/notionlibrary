@@ -96,7 +96,7 @@ User.init({
 
 // Create table
 User
-.sync({ force: true })
+.sync()
 .then(() => console.log('Table created'))
 .catch(console.log);
 

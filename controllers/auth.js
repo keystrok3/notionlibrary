@@ -102,10 +102,8 @@ const login = async (req, res, next) => {
         }
 
         // Check password
-        const correctPassword = await user.comparePassword(password)
-        console.log('\n\n\n\n pass? ',correctPassword)
+        const correctPassword = await user.comparePassword(password);
         if(correctPassword === false) {
-            console.log('Wrong password');
             return res.status(401).json({ success: false, msg: "Wrong password" });
         }
 
