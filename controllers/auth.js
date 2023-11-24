@@ -16,12 +16,10 @@ const register = async (req, res, next) => {
 
     // Generate JWT token
     const secret = process.env.JWT_SECRET;
-    const expiresIn = '1d';
     const payload = {
         email: email,
-        expiresIn: Math.floor(Date.now() / 1000) + expiresIn
     }
-    const confirmationToken = jwt.sign(payload, secret, { expiresIn });
+    const confirmationToken = jwt.sign(payload, secret, { expiresIn: '30d' });
 
 
     const registrationDate = Date.now();  // milliseconds since Jan 1 1970. Used to check for elapsed time
@@ -34,7 +32,7 @@ const register = async (req, res, next) => {
             lastName: lastName, 
             password: password,
             registrationDate: registrationDate,
-            emailConfirmationToken: confirmationToken
+            emailConfirmationToken: confirmationToken,
         });
 
         try {
@@ -58,11 +56,16 @@ const register = async (req, res, next) => {
 const confirm_email = async (req, res, next) => {
     const confirmationToken = req.params.confirmationToken;
 
-    const jwt_verify = jwt.verify(confirmationToken, process.env.JWT_SECRET, (err, decoded) => {
+    const jwtverify = jwt.verify(confirmationToken, process.env.JWT_SECRET, (err, decoded) => {
         if(err) {
-            return res.status(401).json({ success: false, msg: "Confirmation failed"})
+            // if(err.name === "TokenExpiredError") {
+                console.log('ERROR HERE: ', err.name);
+                return res.status(401).json({ success: false, msg: ""})
+            // }
+            res.status(200).json({ success: true, msg: "Confirmation successful", decoded });
         }
     });
+
 
     try {
         
@@ -76,7 +79,7 @@ const confirm_email = async (req, res, next) => {
         user.confirmationStatus = true;
 
         await user.save();
-        res.status(201).json({ success: true, msg: "Confirmed email" });
+        return res.status(201).json({ success: true, msg: "Confirmed email" });
     } catch (error) {
         console.log(error);
         res.status(500).json({ success: false, msg: "Could not confirm email"})
@@ -103,6 +106,7 @@ const login = async (req, res, next) => {
 
         // Check password
         const correctPassword = await user.comparePassword(password);
+        console.log(correctPassword)
         if(correctPassword === false) {
             return res.status(401).json({ success: false, msg: "Wrong password" });
         }
@@ -110,6 +114,7 @@ const login = async (req, res, next) => {
         req.session.user = {
             email: user.email,
             confirmed: user.confirmationStatus,
+            role: user.role
         }
         let session_data = req.session;
         res.status(200).json({ success: true,  session_data })

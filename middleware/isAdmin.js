@@ -5,7 +5,7 @@
  * 'admin' role
  * */ 
 function isAdmin(req, res, next) {
-
+    console.log(req.session)
     if(req.session.user && req.session.user.role === "admin") {
         return next()
     }

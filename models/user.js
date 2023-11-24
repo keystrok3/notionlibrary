@@ -67,23 +67,26 @@ User.init({
 
     role: {
         type: DataTypes.ENUM("admin", "member"),
+        defaultValue: "member"
     }
 },
 
 {
     hooks: {
         beforeCreate: async (User) => {
-            const salt = await bcrypt.genSalt(10);
-            const hashedPassword = await bcrypt.hash(User.password, salt);
-            User.password = hashedPassword;
-        },
-
-        beforeSave: async (User) => {
-            if(User.changed('password')) {
+            if(User.isNewRecord) {
                 const salt = await bcrypt.genSalt(10);
                 const hashedPassword = await bcrypt.hash(User.password, salt);
                 User.password = hashedPassword;
             }
+        },
+
+        beforeSave: async (User) => {
+            if(User.isNewRecord === false) { // run if record is not new
+                const salt = await bcrypt.genSalt(10);
+                const hashedPassword = await bcrypt.hash(User.password, salt);
+                User.password = hashedPassword;
+            } 
         }
     },
     sequelize,
