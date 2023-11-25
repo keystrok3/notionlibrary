@@ -25,6 +25,7 @@ app.use(session({
 
 // Routing middleware
 app.use('/api/auth', require('./routes/auth'));
+app.use('/api/books', require('./routes/books'));
 
 
 

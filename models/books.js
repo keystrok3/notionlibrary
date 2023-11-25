@@ -16,7 +16,7 @@ Books.init({
     },
 
     isbn: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.STRING,
         allowNull: false,
         unique: true,
         primaryKey: true
