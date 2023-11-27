@@ -1,0 +1,16 @@
+
+.login-page {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+
+.login-form {
+    width: 40%;
+    display: flex;
+    flex-direction: column;
+    margin-top: 3em;
+}
+
